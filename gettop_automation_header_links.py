@@ -19,8 +19,6 @@ actual_result = browser.find_element(By.XPATH, "//nav[contains(@class, 'breadcru
 assert actual_result == expected_result, f'Error! Actual {actual_result} did not match expected {expected_result}'
 print('Phone Test cases passed')
 
-browser.find_element(By.XPATH, "//a[@title='gettop.us - Just another WordPress site']").click()
-
 browser.find_element(By.XPATH, "//a[text()='Laptops' and @class='nav-top-link']").click()
 
 expected_result = 'HOME / LAPTOP'

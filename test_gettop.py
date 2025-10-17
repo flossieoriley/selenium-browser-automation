@@ -1,7 +1,7 @@
 from encodings.punycode import selective_find
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from time import sleep
@@ -42,6 +42,27 @@ class TestGettop:
         self.browser.get('https://gettop.us/cart/')
         cart_product_name = self.browser.find_element(By.XPATH, "//td[@class='product-name']//a").text
         assert cart_product_name == product_name
+        print(f'{category} test passed')
+
+    @pytest.mark.parametrize('search_term, expected_breadcrumb, expected_product', [
+        ('chromebook', 'HOME / SHOP / SEARCH RESULTS FOR “CHROMEBOOK”', 'Chromebook'),
+        ('laptop', 'HOME / SHOP / SEARCH RESULTS FOR “LAPTOP”', 'Laptop'),
+        ('tablet', 'HOME / SHOP / SEARCH RESULTS FOR “TABLET”', 'Tab'),
+        ('phone', 'HOME / SHOP / SEARCH RESULTS FOR “PHONE”', 'Phone')
+    ])
+    def test_product_search(self, search_term, expected_breadcrumb, expected_product):
+        # search for product
+        self.browser.get('https://gettop.us/')
+        self.browser.find_element(By.XPATH, "//a[@aria-label='Search']").click()
+        self.browser.find_element(By.ID, 'woocommerce-product-search-field-0').send_keys(search_term, Keys.ENTER)
+
+        # verify search results
+        actual_text = self.browser.find_element(By.XPATH, "//nav[contains(@class, 'breadcrumbs')]").text
+        assert expected_breadcrumb == actual_text, f'Expected "{expected_breadcrumb}" but got "{actual_text}"'
+
+        # verify product title
+        actual_product_title = self.browser.find_element(By.XPATH, "//p[@class='name product-title']").text
+        assert expected_product in actual_product_title,  f'Expected "{expected_product}" to be in "{actual_product_title}"'
 
     def teardown_method(self):
         self.browser.quit()
